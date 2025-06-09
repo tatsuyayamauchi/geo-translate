@@ -19,7 +19,6 @@ help:
 	@echo "使用例:"
 	@echo "  make build"
 	@echo "  make run INPUT_FILE=sample.tif OUTPUT_FILE=sample.mbtiles"
-	@echo "  make run INPUT_FILE=sample.tif OUTPUT_FILE=sample.mbtiles ZOOM_LEVELS=1-12"
 
 build: ## Dockerイメージをビルド
 	@echo "Dockerイメージをビルド中..."
@@ -40,16 +39,12 @@ run: setup ## 変換処理を実行
 	@echo "変換処理を開始..."
 	@echo "入力: $(INPUT_DIR)/$(INPUT_FILE)"
 	@echo "出力: $(OUTPUT_DIR)/$(OUTPUT_FILE)"
-	@echo "ズームレベル: $(ZOOM_LEVELS)"
 	docker run --rm \
 		--name $(CONTAINER_NAME) \
 		-v $(INPUT_DIR):/app/input:ro \
 		-v $(OUTPUT_DIR):/app/output \
 		$(DOCKER_IMAGE):$(DOCKER_TAG) \
-		python3 ./scripts/convert.py \
-		/app/input/$(INPUT_FILE) \
-		/app/output/$(OUTPUT_FILE) \
-		--zoom $(ZOOM_LEVELS)
+		gdal_translate -of MBTiles /app/input/$(INPUT_FILE) /app/output/$(OUTPUT_FILE)
 
 shell: setup ## コンテナ内でシェルを起動
 	docker run --rm -it \
